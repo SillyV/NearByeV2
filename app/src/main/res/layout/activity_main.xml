@@ -23,4 +23,10 @@
 
     </android.support.v7.widget.Toolbar>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:text="nearby"
+        android:layout_alignParentBottom="true"
+        android:onClick="onPlacesClick"
+        android:layout_height="wrap_content"/>
 </RelativeLayout>
