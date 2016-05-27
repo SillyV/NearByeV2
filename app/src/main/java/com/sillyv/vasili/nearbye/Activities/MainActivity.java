@@ -19,22 +19,29 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.sillyv.vasili.nearbye.R;
 import com.sillyv.vasili.nearbye.activities.fragments.MapFragment;
 import com.sillyv.vasili.nearbye.activities.fragments.ResultsFragment;
+import com.sillyv.vasili.nearbye.helpers.gson.Results;
 import com.sillyv.vasili.nearbye.helpers.recycler.LocationListItem;
 import com.sillyv.vasili.nearbye.misc.Prefs;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class MainActivity
-        extends AppCompatActivity
-        implements MapFragment.OnFragmentInteractionListener, ResultsFragment.OnFragmentInteractionListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
+public class MainActivity extends AppCompatActivity implements MapFragment.OnFragmentInteractionListener, ResultsFragment.OnFragmentInteractionListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback
 {
     private static final String TAG = "SillyV.MainActivity";
     private static final int PLACE_PICKER_REQUEST = 40001;
@@ -43,12 +50,14 @@ public class MainActivity
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private Double mLatitudeText;
+    private SupportMapFragment map;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         setUpActivityControls();
         mappingSetup();
     }
@@ -63,6 +72,7 @@ public class MainActivity
                     .addApi(LocationServices.API)
                     .build();
         }
+
     }
 
     protected void onStart()
@@ -83,6 +93,9 @@ public class MainActivity
         setSupportActionBar(toolbar);
         mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_fragment);
         resultsFragment = (ResultsFragment) getSupportFragmentManager().findFragmentById(R.id.list_fragment);
+        map = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        map.getMapAsync(this);//remember getMap() is deprecated!
+
         goToMaps();
     }
 
@@ -224,9 +237,9 @@ public class MainActivity
 
 
     @Override
-    public void onFragmentInteraction(LocationListItem location)
+    public void onFragmentInteraction(Results results)
     {
-
+        Toast.makeText(this, results.getName(), Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -245,5 +258,16 @@ public class MainActivity
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult)
     {
 
+    }
+
+
+    @Override
+    public void onMapReady(GoogleMap googleMap)
+    {
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                new LatLng(47.17, 27.5699), 16));
+        googleMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher)).anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
+                .position(new LatLng(47.17, 27.5699))); //Iasi, Romania
+        googleMap.setMyLocationEnabled(true);
     }
 }
