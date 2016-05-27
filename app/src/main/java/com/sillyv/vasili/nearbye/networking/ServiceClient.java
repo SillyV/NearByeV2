@@ -11,8 +11,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.sillyv.vasili.nearbye.helpers.gson.GoogleMapper;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -42,7 +42,7 @@ public class ServiceClient {
 
     private static final String SERVER_HOST = "https://maps.googleapis.com";
 
-    public <T> void sendRequest(String action, int method, final Callback<T> callback, final Class<T> responseClass, final Map<String, String> params){
+    public void sendRequest(String action, int method, final Callback<GoogleMapper> callback, final Class<GoogleMapper> responseClass, final Map<String, String> params){
 
         String url = SERVER_HOST + action;
 
@@ -54,7 +54,8 @@ public class ServiceClient {
                     public void onResponse(String response) {
                         Log.d(TAG, "Response is: " + response);
                         Gson gson = new Gson();
-                        T t = gson.fromJson(response, responseClass);
+
+                        GoogleMapper t = gson.fromJson(response, responseClass);
                         // Display the first 500 characters of the response string.
 
                         callback.callback(t);
@@ -80,11 +81,11 @@ public class ServiceClient {
     }
 
 
-    public <T> void sendPostRequest(String action, final Callback<T> callback, final Class<T> responseClass, Map<String, String> params){
+    public <T> void sendPostRequest(String action, final Callback<GoogleMapper> callback, final Class<GoogleMapper> responseClass, Map<String, String> params){
         sendRequest(action, Request.Method.POST, callback, responseClass, params);
     }
 
-    public <T> void sendGetRequest(String action, final Callback<T> callback, final Class<T> responseClass, String params){
+    public <T> void sendGetRequest(String action, final Callback<GoogleMapper> callback, final Class<GoogleMapper> responseClass, String params){
         sendRequest(action + params, Request.Method.GET, callback, responseClass, null);
     }
 }

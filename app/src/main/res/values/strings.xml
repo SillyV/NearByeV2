@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">NearBye</string>
     <string name="google_api_key">AIzaSyDfc0V_FP2UlpYGmIkd6PZy3SufwwvjtOA</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

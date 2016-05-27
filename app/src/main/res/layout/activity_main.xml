@@ -5,28 +5,44 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#00ff00"
-    tools:context=".MainActivity">
+    android:background="#EFF0F1"
+    tools:context=".activities.MainActivity">
 
+    <fragment
+        android:name="com.sillyv.vasili.nearbye.activities.fragments.MapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/map_fragment"
+        tools:layout="@layout/fragment_map" />
 
+    <LinearLayout
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
     <android.support.v7.widget.Toolbar
         android:id="@+id/my_awesome_toolbar"
         style="@style/ToolbarLightOverflow"
         android:layout_width="match_parent"
         android:layout_height="64dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
         android:background="#00ffffff"
         android:minHeight="?attr/actionBarSize"
         android:paddingRight="16dp"
-        android:paddingTop="16dp">
+        android:paddingTop="16dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
 
     </android.support.v7.widget.Toolbar>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:text="nearby"
-        android:layout_alignParentBottom="true"
-        android:onClick="onPlacesClick"
-        android:layout_height="wrap_content"/>
+        <fragment
+            android:name="com.sillyv.vasili.nearbye.activities.fragments.ResultsFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/list_fragment"
+            tools:layout="@layout/fragment_results" />
+
+
+</LinearLayout>
+
+
 </RelativeLayout>
