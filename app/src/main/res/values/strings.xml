@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">NearBye</string>
-    <string name="google_api_key">AIzaSyDfc0V_FP2UlpYGmIkd6PZy3SufwwvjtOA</string>
+    <string name="google_api_key">AIzaSyDypbZmCpHA0-OCGOhPAgg0t7nkuemDS1I</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_maps">Map</string>
 </resources>

@@ -20,12 +20,14 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>
 {
 
 
+    private final View.OnLongClickListener mLongListener;
+
     public List<Results> Items()
     {
         return mDataset;
     }
-
     private List<Results> mDataset;
+    private View.OnClickListener mListener;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -50,9 +52,11 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public MyAdapter(List<Results> myDataset)
+    public MyAdapter(List<Results> myDataset, View.OnClickListener mListener, View.OnLongClickListener mLongListener)
     {
         mDataset = myDataset;
+        this.mListener = mListener;
+        this.mLongListener = mLongListener;
     }
 
     // Create new views (invoked by the layout manager)
@@ -62,7 +66,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>
         // create a new view
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.result_list_item, parent, false);
         // set the view's size, margins, paddings and layout parameters
-
+        v.setOnClickListener(mListener);
+        v.setOnLongClickListener(mLongListener);
         ViewHolder vh = new ViewHolder(v);
         return vh;
     }

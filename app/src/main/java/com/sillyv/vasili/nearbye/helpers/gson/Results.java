@@ -18,6 +18,9 @@ public class Results
     private List<String> types;
     private String vicinity;
 
+    private int dbid;
+
+
     public Results(Geometry geometry, String icon, String id, String name, List<Photos> photos, Double rating, String reference, List<String> types, String vicinity)
     {
         this.geometry = geometry;
@@ -122,4 +125,13 @@ public class Results
     }
 
 
+    public int getDbid()
+    {
+        return dbid;
+    }
+
+    public void setDbid(int dbid)
+    {
+        this.dbid = dbid;
+    }
 }

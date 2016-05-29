@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.sillyv.vasili.nearbye.R;
+import com.sillyv.vasili.nearbye.helpers.database.LocationTableHandler;
 import com.sillyv.vasili.nearbye.helpers.gson.Geometry;
 import com.sillyv.vasili.nearbye.helpers.gson.GoogleMapper;
 import com.sillyv.vasili.nearbye.helpers.gson.Results;
@@ -23,16 +24,8 @@ import com.sillyv.vasili.nearbye.networking.ServiceClient;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link ResultsFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link ResultsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class ResultsFragment
-        extends Fragment
+        extends Fragment implements View.OnClickListener, View.OnLongClickListener
 {
     private OnFragmentInteractionListener mListener;
     private Location location;
@@ -81,7 +74,7 @@ public class ResultsFragment
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new MyAdapter(getFavorites());
+        mAdapter = new MyAdapter(getFavorites(),this,this);
         mRecyclerView.setAdapter(mAdapter);
 
 
@@ -100,13 +93,13 @@ public class ResultsFragment
         return aaa;
     }
 
-    public void onLocationSelected(LocationListItem location)
-    {
-        if (mListener != null)
-        {
-            mListener.onFragmentInteraction(location);
-        }
-    }
+//    public void onLocationSelected(Results results)
+//    {
+//        if (mListener != null)
+//        {
+//            mListener.onFragmentInteraction(results);
+//        }
+//    }
 
     @Override
     public void onAttach(Context context)
@@ -135,9 +128,23 @@ public class ResultsFragment
         this.location = location;
     }
 
+    @Override
+    public void onClick(View v)
+    {
+        int itemPosition = mRecyclerView.getChildLayoutPosition(v);
+        mListener.onFragmentInteraction(mAdapter.Items().get(itemPosition));
+    }
+
+    @Override
+    public boolean onLongClick(View v)
+    {
+        LocationTableHandler db = new LocationTableHandler(getContext());
+        return false;
+    }
+
     public interface OnFragmentInteractionListener
     {
-        void onFragmentInteraction(LocationListItem location);
+        void onFragmentInteraction(Results results);
     }
 
     public void SearchQueryINGooglePlacesWebService(final String query)

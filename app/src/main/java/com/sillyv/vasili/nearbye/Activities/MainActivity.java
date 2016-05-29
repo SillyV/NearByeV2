@@ -1,11 +1,13 @@
 package com.sillyv.vasili.nearbye.activities;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -41,22 +43,24 @@ import com.sillyv.vasili.nearbye.misc.Prefs;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity implements MapFragment.OnFragmentInteractionListener, ResultsFragment.OnFragmentInteractionListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback
+public class MainActivity extends AppCompatActivity implements ResultsFragment.OnFragmentInteractionListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback
 {
     private static final String TAG = "SillyV.MainActivity";
     private static final int PLACE_PICKER_REQUEST = 40001;
-    private MapFragment mapFragment;
     private ResultsFragment resultsFragment;
+    private MapFragment mapFragment;
     private GoogleApiClient mGoogleApiClient;
-    private Location mLastLocation;
-    private Double mLatitudeText;
     private SupportMapFragment map;
-
+    MenuItem searchMenuItem;
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mapFragment = (MapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
 
         setUpActivityControls();
         mappingSetup();
@@ -72,7 +76,6 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
                     .addApi(LocationServices.API)
                     .build();
         }
-
     }
 
     protected void onStart()
@@ -91,11 +94,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
     {
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
         setSupportActionBar(toolbar);
-        mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_fragment);
         resultsFragment = (ResultsFragment) getSupportFragmentManager().findFragmentById(R.id.list_fragment);
-        map = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        map.getMapAsync(this);//remember getMap() is deprecated!
-
         goToMaps();
     }
 
@@ -104,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
     {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
-        MenuItem searchMenuItem = menu.findItem(R.id.action_search);
+        searchMenuItem = menu.findItem(R.id.action_search);
         if (searchMenuItem == null)
         {
             return true;
@@ -189,13 +188,6 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
     }
 
 
-    @Override
-    public void onFragmentInteraction(Uri uri)
-    {
-
-    }
-
-
     private void goToMaps()
     {
         FragmentManager fm = getSupportFragmentManager();
@@ -239,7 +231,9 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
     @Override
     public void onFragmentInteraction(Results results)
     {
-        Toast.makeText(this, results.getName(), Toast.LENGTH_SHORT).show();
+        mapFragment.setLocation(results,this);
+        searchMenuItem.collapseActionView();
+        goToMaps();
     }
 
     @Override
@@ -264,10 +258,22 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
     @Override
     public void onMapReady(GoogleMap googleMap)
     {
+        googleMap.getUiSettings().setMyLocationButtonEnabled(false);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                 new LatLng(47.17, 27.5699), 16));
-        googleMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher)).anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
+        googleMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher)) // Anchors the marker on the bottom left
                 .position(new LatLng(47.17, 27.5699))); //Iasi, Romania
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         googleMap.setMyLocationEnabled(true);
     }
 }
