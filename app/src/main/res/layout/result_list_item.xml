@@ -1,46 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="100dp"
-    android:orientation="vertical">
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:id="@+id/item_layout_container"
+
+                android:orientation="vertical">
 
     <ImageView
-        android:paddingTop="25dp"
-        android:paddingBottom="25dp"
-        android:src="@mipmap/ic_launcher"
+        android:id="@+id/favorites_indicator"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:visibility="gone"
+        android:layout_below="@+id/list_item_name"
+        android:src="@drawable/favorites"/>
+
+    <ImageView
+        android:id="@+id/list_item_icon"
         android:layout_width="60dp"
         android:layout_height="match_parent"
-        android:id="@+id/list_item_icon" />
+        android:paddingBottom="25dp"
+        android:paddingTop="25dp"
+        android:src="@mipmap/ic_launcher"/>
 
     <TextView
-        android:text="TextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@+id/list_item_ratings"
-        android:textAppearance="@android:style/TextAppearance.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/list_item_icon"
+        android:layout_marginBottom="16dp"
         android:layout_toEndOf="@+id/list_item_icon"
-        android:layout_marginBottom="16dp" />
+        android:layout_toRightOf="@+id/list_item_icon"
+        android:text="TextView"
+        android:textAppearance="@android:style/TextAppearance.Small"/>
 
     <TextView
-        android:text="TextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@+id/list_item_address"
-        android:textAppearance="@android:style/TextAppearance.Small"
-        android:layout_above="@+id/list_item_ratings"
-        android:layout_toRightOf="@+id/list_item_icon"
-        android:layout_toEndOf="@+id/list_item_icon" />
-
-    <TextView
-        android:text="TextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/list_item_name"
-        android:textAppearance="@android:style/TextAppearance.Medium"
-        android:layout_above="@+id/list_item_address"
+        android:layout_above="@+id/list_item_ratings"
+        android:layout_toEndOf="@+id/list_item_icon"
         android:layout_toRightOf="@+id/list_item_icon"
-        android:layout_toEndOf="@+id/list_item_icon" />
+        android:text="TextView"
+        android:textAppearance="@android:style/TextAppearance.Small"/>
+
+    <TextView
+        android:id="@+id/list_item_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/list_item_address"
+        android:layout_toEndOf="@+id/list_item_icon"
+        android:layout_toRightOf="@+id/list_item_icon"
+        android:text="TextView"
+        android:textAppearance="@android:style/TextAppearance.Medium"/>
+
 
 </RelativeLayout>

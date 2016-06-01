@@ -1,6 +1,7 @@
 package com.sillyv.vasili.nearbye.activities;
 
 import android.Manifest;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -13,14 +14,18 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -40,6 +45,7 @@ import com.sillyv.vasili.nearbye.helpers.gson.Results;
 import com.sillyv.vasili.nearbye.helpers.recycler.LocationListItem;
 import com.sillyv.vasili.nearbye.misc.Prefs;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,6 +58,8 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
     private GoogleApiClient mGoogleApiClient;
     private SupportMapFragment map;
     MenuItem searchMenuItem;
+    private Toolbar mToolBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -92,8 +100,8 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
 
     private void setUpActivityControls()
     {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
-        setSupportActionBar(toolbar);
+        mToolBar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
+        setSupportActionBar(mToolBar);
         resultsFragment = (ResultsFragment) getSupportFragmentManager().findFragmentById(R.id.list_fragment);
         goToMaps();
     }
@@ -122,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
             @Override
             public boolean onQueryTextChange(String newText)
             {
+                resultsFragment.currentQueryIs(newText);
                 return false;
             }
         });
@@ -149,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
                 if (getSupportActionBar() != null)
                 {
                     goToMaps();
-                    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.WHITE));
                     //// TODO: 23-May-16 Call functions to change Fragment Visibility
                 }
                 return true;
@@ -190,13 +199,16 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
 
     private void goToMaps()
     {
-        FragmentManager fm = getSupportFragmentManager();
+           FragmentManager fm = getSupportFragmentManager();
+
         fm.beginTransaction()
                 .show(mapFragment)
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
                 .commit();
 
         fm.beginTransaction()
                 .hide(resultsFragment)
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
                 .commit();
     }
 
@@ -205,9 +217,11 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
     {
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
                 .hide(mapFragment)
                 .commit();
         fm.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
                 .show(resultsFragment)
                 .commit();
 
@@ -222,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        resultsFragment.setLocation(LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient));
+        resultsFragment.startingSettings(LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient));
 
 
     }
@@ -233,6 +247,7 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
     {
         mapFragment.setLocation(results,this);
         searchMenuItem.collapseActionView();
+        getSupportActionBar().setTitle(results.getName());
         goToMaps();
     }
 
@@ -276,4 +291,7 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
         }
         googleMap.setMyLocationEnabled(true);
     }
+
+
+
 }

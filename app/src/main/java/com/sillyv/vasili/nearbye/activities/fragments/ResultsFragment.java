@@ -33,6 +33,9 @@ public class ResultsFragment
     private LinearLayoutManager mLayoutManager;
     private MyAdapter mAdapter;
 
+    private View.OnClickListener oc;
+    private View.OnLongClickListener olc;
+
     public ResultsFragment()
     {
     }
@@ -63,7 +66,8 @@ public class ResultsFragment
                              Bundle savedInstanceState)
     {
         View v = inflater.inflate(R.layout.fragment_results, container, false);
-
+        oc = this;
+        olc = this;
         //code here
 
         mRecyclerView = (RecyclerView) v.findViewById(R.id.results_recycler_view);
@@ -74,9 +78,8 @@ public class ResultsFragment
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new MyAdapter(getFavorites(),this,this);
+        mAdapter = new MyAdapter(getFavorites(), oc, olc, getContext());
         mRecyclerView.setAdapter(mAdapter);
-
 
 
         return v;
@@ -85,11 +88,8 @@ public class ResultsFragment
     private List<Results> getFavorites()
     {
         List<Results> aaa = new ArrayList<>();
-        aaa.add(new Results(new Geometry(new com.sillyv.vasili.nearbye.helpers.gson.Location(30d,30d)),"http://maps.gstatic.com/mapfiles/place_api/icons/travel_agent-71.png\"","test","test",null,4.5d,"how about Joesph Stalin",null,"Hacarmel St 24"));
-        aaa.add(new Results(new Geometry(new com.sillyv.vasili.nearbye.helpers.gson.Location(30d,30d)),"http://maps.gstatic.com/mapfiles/place_api/icons/travel_agent-71.png\"","test1","test",null,4.5d,"how about Joesph Stalin",null,"Harav Berlin St 25"));
-        aaa.add(new Results(new Geometry(new com.sillyv.vasili.nearbye.helpers.gson.Location(30d,30d)),"test","test2","test",null,4.5d,"how about Joesph Stalin",null,"Rama St 10"));
-        aaa.add(new Results(new Geometry(new com.sillyv.vasili.nearbye.helpers.gson.Location(30d,30d)),"http://maps.gstatic.com/mapfiles/place_api/icons/travel_agent-71.png\"","test3","test",null,4.5d,"how about Joesph Stalin",null,"Kapaln St 2"));
-
+        LocationTableHandler db = new LocationTableHandler(getContext());
+        aaa.addAll(db.getAllLocations());
         return aaa;
     }
 
@@ -123,9 +123,11 @@ public class ResultsFragment
         mListener = null;
     }
 
-    public void setLocation(Location location)
+    public void startingSettings(Location location)
     {
         this.location = location;
+        mAdapter = new MyAdapter(getFavorites(), oc, olc, getContext());
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     @Override
@@ -138,8 +140,30 @@ public class ResultsFragment
     @Override
     public boolean onLongClick(View v)
     {
+        int itemPosition = mRecyclerView.getChildLayoutPosition(v);
         LocationTableHandler db = new LocationTableHandler(getContext());
+        if (db.isGoogleIDAlreadyInDB(mAdapter.Items().get(itemPosition).getId()))
+        {
+            db.removeLocation(mAdapter.Items().get(itemPosition).getId());
+            mAdapter.Items().get(itemPosition).setFavorite(false);
+        }
+        else
+        {
+            db.addLocation(mAdapter.Items().get(itemPosition));
+            mAdapter.Items().get(itemPosition).setFavorite(true);
+        }
+        mAdapter.notifyDataSetChanged();
         return false;
+    }
+
+    public void currentQueryIs(String newText)
+    {
+        if (newText.equals(""))
+        {
+            mAdapter = new MyAdapter(getFavorites(), oc, olc, getContext());
+            mRecyclerView.setAdapter(mAdapter);
+
+        }
     }
 
     public interface OnFragmentInteractionListener
@@ -160,9 +184,9 @@ public class ResultsFragment
                     @Override
                     public void callback(GoogleMapper response)
                     {
-                        mAdapter.Items().clear();
-                        mAdapter.Items().addAll(response.getResults());
-                        mAdapter.notifyDataSetChanged();
+
+                        mAdapter = new MyAdapter(response.getResults(), oc, olc, getContext());
+                        mRecyclerView.setAdapter(mAdapter);
 //                        Log.d(TAG, "Response is: " + response.toString());
                     }
                 }, GoogleMapper.class, getStringParamsForAddBobRequest(myLocation, query));
@@ -173,6 +197,7 @@ public class ResultsFragment
 
     private String getStringParamsForAddBobRequest(String location, String query)
     {
+        query = query.trim().replace(" ","+");
         return "?keyword=" + query + "&location=" + location + "&rankby=distance" + "&key=" + Prefs.API_KEY;
     }
 }

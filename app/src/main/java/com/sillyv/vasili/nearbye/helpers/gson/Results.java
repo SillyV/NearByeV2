@@ -7,6 +7,17 @@ import java.util.List;
  */
 public class Results
 {
+private boolean favorite = false;
+
+    public boolean isFavorite()
+    {
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite)
+    {
+        this.favorite = favorite;
+    }
 
     private Geometry geometry;
     private String icon;
@@ -21,8 +32,9 @@ public class Results
     private int dbid;
 
 
-    public Results(Geometry geometry, String icon, String id, String name, List<Photos> photos, Double rating, String reference, List<String> types, String vicinity)
+    public Results(Geometry geometry, String icon, String id, String name, List<Photos> photos, Double rating, String reference, List<String> types, String vicinity, boolean favorite)
     {
+        this.favorite = favorite;
         this.geometry = geometry;
         this.icon = icon;
         this.id = id;
