@@ -28,11 +28,21 @@ public class ResultsFragment
         extends Fragment implements View.OnClickListener, View.OnLongClickListener
 {
     private OnFragmentInteractionListener mListener;
-    private Location location;
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
     private MyAdapter mAdapter;
+    private ServiceClient.Callback<GoogleMapper> mCallback = new ServiceClient.Callback<GoogleMapper>()
+    {
+        static final String TAG = "SillyV.SearchResults";
 
+        @Override
+        public void callback(GoogleMapper response)
+        {
+            mListener.setListVisible();
+            mAdapter = new MyAdapter(response.getResults(), oc, olc, getContext());
+            mRecyclerView.setAdapter(mAdapter);
+        }
+    };
     private View.OnClickListener oc;
     private View.OnLongClickListener olc;
 
@@ -75,11 +85,10 @@ public class ResultsFragment
 
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(getContext());
-        mRecyclerView.setLayoutManager(mLayoutManager);
-
+       mRecyclerView.setLayoutManager(mLayoutManager);
         // specify an adapter (see also next example)
-        mAdapter = new MyAdapter(getFavorites(), oc, olc, getContext());
-        mRecyclerView.setAdapter(mAdapter);
+//        mAdapter = new MyAdapter(getFavorites(), oc, olc, getContext());
+//        mRecyclerView.setAdapter(mAdapter);
 
 
         return v;
@@ -123,11 +132,10 @@ public class ResultsFragment
         mListener = null;
     }
 
-    public void startingSettings(Location location)
+    public void startingSettings()
     {
-        this.location = location;
-        mAdapter = new MyAdapter(getFavorites(), oc, olc, getContext());
-        mRecyclerView.setAdapter(mAdapter);
+        //mAdapter = new MyAdapter(getFavorites(), oc, olc, getContext());
+        //mRecyclerView.setAdapter(mAdapter);
     }
 
     @Override
@@ -169,35 +177,44 @@ public class ResultsFragment
     public interface OnFragmentInteractionListener
     {
         void onFragmentInteraction(Results results);
+
+        void setListVisible();
     }
 
-    public void SearchQueryINGooglePlacesWebService(final String query)
+    public void SearchQueryINGooglePlacesWebService(final String query, final Location location)
     {
 
         final String myLocation = String.valueOf(location.getLatitude()) + "," + String.valueOf(location.getLongitude());
 
         ServiceClient.get(getContext()).sendGetRequest("/maps/api/place/nearbysearch/json",
-                new ServiceClient.Callback<GoogleMapper>()
-                {
-                    public static final String TAG = "SillyV.SearchResults";
-
-                    @Override
-                    public void callback(GoogleMapper response)
-                    {
-
-                        mAdapter = new MyAdapter(response.getResults(), oc, olc, getContext());
-                        mRecyclerView.setAdapter(mAdapter);
-//                        Log.d(TAG, "Response is: " + response.toString());
-                    }
-                }, GoogleMapper.class, getStringParamsForAddBobRequest(myLocation, query));
+                mCallback, GoogleMapper.class, getStringParamsForAddBobRequest(myLocation, query));
 
         //  HttpRequest httpRequest = new HttpRequest(this, this, Prefs.urlBuilderLocation("31.801999,35.2093514",2000), 4001);
         //  httpRequest.runRequest();
     }
 
+
+    public void SearchQueryINGooglePlacesWebService(final Location location)
+    {
+
+        final String myLocation = String.valueOf(location.getLatitude()) + "," + String.valueOf(location.getLongitude());
+
+        ServiceClient.get(getContext()).sendGetRequest("/maps/api/place/nearbysearch/json",
+                mCallback, GoogleMapper.class, getStringParamsForAddBobRequest(myLocation));
+
+        //  HttpRequest httpRequest = new HttpRequest(this, this, Prefs.urlBuilderLocation("31.801999,35.2093514",2000), 4001);
+        //  httpRequest.runRequest();
+    }
+
+    private String getStringParamsForAddBobRequest(String myLocation)
+    {
+        return "?location=" + myLocation + "&radius=2000" + "&key=" + Prefs.API_KEY;
+    }
+
+
     private String getStringParamsForAddBobRequest(String location, String query)
     {
-        query = query.trim().replace(" ","+");
+        query = query.trim().replace(" ", "+");
         return "?keyword=" + query + "&location=" + location + "&rankby=distance" + "&key=" + Prefs.API_KEY;
     }
 }
