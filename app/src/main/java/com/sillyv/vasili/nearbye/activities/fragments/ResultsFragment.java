@@ -132,11 +132,7 @@ public class ResultsFragment
         mListener = null;
     }
 
-    public void startingSettings()
-    {
-        //mAdapter = new MyAdapter(getFavorites(), oc, olc, getContext());
-        //mRecyclerView.setAdapter(mAdapter);
-    }
+
 
     @Override
     public void onClick(View v)
@@ -172,6 +168,12 @@ public class ResultsFragment
             mRecyclerView.setAdapter(mAdapter);
 
         }
+    }
+
+    public void goToFavorites()
+    {
+        mAdapter = new MyAdapter(getFavorites(), oc, olc, getContext());
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     public interface OnFragmentInteractionListener
