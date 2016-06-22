@@ -1,5 +1,7 @@
 package com.sillyv.vasili.nearbye.misc;
 
+import android.util.Log;
+
 /**
  * Created by vasili on 23-May-16.
  */
@@ -13,11 +15,13 @@ public class Prefs
     public static final String stringThree = "&radius=";
     public static final String stringFour = "&key=";
     public static final String stringFive = "\n";
+    private static final String TAG = "sSsdsdsd";
 
 //https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=coffee&location=-33.8670522,151.1957362&radius=500&type=restaurant&name=cruise&key=AIzaSyDTiFKjG8U9Swd0L0bbC9AB56SOUV9nCg0
 
     public static String urlBuilderSearch(String query, String location, int radius)
     {
+        Log.d(TAG,"TEST");
         return stringOne + stringOneAlternate + query + "&" + otherParams(location,radius);
     }
 
