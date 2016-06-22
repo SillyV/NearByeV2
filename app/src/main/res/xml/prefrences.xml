@@ -1,0 +1,19 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/title_first_section">
+        <ListPreference
+            android:dialogTitle="@string/dialog_title_list_preference"
+            android:entries="@array/entries_list_preference"
+            android:entryValues="@array/entryvalues_list_preference"
+            android:key="unit_preference"
+            android:title="@string/unit_preference"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/title_second_section">
+        <Preference
+            android:key="remove_favorite_preference"
+            android:title="@string/remove_favorite_preference"
+            />
+    </PreferenceCategory>
+</PreferenceScreen>

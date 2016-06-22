@@ -45,7 +45,12 @@
             android:layout_height="match_parent"
             tools:layout="@layout/fragment_results"/>
 
-
+        <fragment
+            android:id="@+id/prefrences_fragment"
+            android:name="com.sillyv.vasili.nearbye.activities.fragments.PrefsFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
     </LinearLayout>
 
 

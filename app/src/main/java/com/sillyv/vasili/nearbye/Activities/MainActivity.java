@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.preference.PreferenceFragment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -44,6 +45,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.sillyv.vasili.nearbye.R;
 import com.sillyv.vasili.nearbye.activities.fragments.MapFragment;
+import com.sillyv.vasili.nearbye.activities.fragments.PrefsFragment;
 import com.sillyv.vasili.nearbye.activities.fragments.ResultsFragment;
 import com.sillyv.vasili.nearbye.helpers.gson.Results;
 import com.sillyv.vasili.nearbye.helpers.recycler.LocationListItem;
@@ -53,7 +55,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity implements ResultsFragment.OnFragmentInteractionListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback
+public class MainActivity extends AppCompatActivity implements  ResultsFragment.OnFragmentInteractionListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback
 {
     private static final String TAG = "SillyV.MainActivity";
     private static final int PLACE_PICKER_REQUEST = 40001;
@@ -71,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
     private boolean initialSearchPerformed = false;
     private Location myLocation;
     private String myQuery;
+    private PrefsFragment prefrecesFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -219,6 +222,7 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
         mToolBar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
         setSupportActionBar(mToolBar);
         resultsFragment = (ResultsFragment) getSupportFragmentManager().findFragmentById(R.id.list_fragment);
+        prefrecesFragment = (PrefsFragment) getFragmentManager().findFragmentById(R.id.prefrences_fragment);
         goToMaps();
     }
 
@@ -284,6 +288,7 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
                 return true;
             }
         });
+        Log.d(TAG, "ASD");
         return true;
     }
 
@@ -294,9 +299,9 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
+        if (id == R.id.settings) {
+            goToPrefrences();
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -319,9 +324,11 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
     private void goToMaps()
     {
         FragmentManager fm = getSupportFragmentManager();
-
         showTransaction(mapFragment, fm);
         hideTransaction(resultsFragment, fm);
+        android.app.FragmentManager fm1 = getFragmentManager();
+        hideTransaction(prefrecesFragment,fm1);
+
     }
 
     private void goToList()
@@ -329,13 +336,21 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
         FragmentManager fm = getSupportFragmentManager();
         hideTransaction(mapFragment, fm);
         showTransaction(resultsFragment, fm);
+        android.app.FragmentManager fm1 = getFragmentManager();
+        hideTransaction(prefrecesFragment,fm1);
+
     }
 
     private void goToPrefrences()
     {
+
         FragmentManager fm = getSupportFragmentManager();
         hideTransaction(resultsFragment, fm);
         hideTransaction(mapFragment, fm);
+        android.app.FragmentManager fm1 = getFragmentManager();
+        showTransaction(prefrecesFragment,fm1);
+
+
     }
 
     private void goToFavorites()
@@ -346,20 +361,44 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
 
     private void showTransaction(Fragment fragment, FragmentManager fm)
     {
-        fm.beginTransaction()
-                .show(fragment)
-                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                .commit();
+        if (fragment != null)
+        {
+            fm.beginTransaction()
+                    .show(fragment)
+                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                    .commit();
+        }
     }
 
     private void hideTransaction(Fragment fragment, FragmentManager fm)
     {
-        fm.beginTransaction()
-                .hide(fragment)
-                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                .commit();
+        if (fragment != null)
+        {
+            fm.beginTransaction()
+                    .hide(fragment)
+                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                    .commit();
+        }
     }
 
+    private void hideTransaction(android.app.Fragment fragment, android.app.FragmentManager fm)
+    {
+        if (fragment != null)
+        {
+            fm.beginTransaction()
+                    .hide(fragment)
+                    .commit();
+        }
+    }
+    private void showTransaction(android.app.Fragment fragment, android.app.FragmentManager fm)
+    {
+        if (fragment != null)
+        {
+            fm.beginTransaction()
+                    .show(fragment)
+                    .commit();
+        }
+    }
     @Override
     public void onFragmentInteraction(Results results)
     {
@@ -416,5 +455,17 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
         googleMap.setMyLocationEnabled(true);
     }
 
+
+    @Override
+    public void onBackPressed() {
+       if (resultsFragment.isVisible())
+       {
+           finish();
+       }
+        else
+       {
+           goToList();
+       }
+    }
 
 }
