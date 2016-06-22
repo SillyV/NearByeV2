@@ -27,6 +27,7 @@ import java.util.List;
 public class ResultsFragment
         extends Fragment implements View.OnClickListener, View.OnLongClickListener
 {
+    private static final String TAG = "test";
     private OnFragmentInteractionListener mListener;
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
@@ -172,6 +173,7 @@ public class ResultsFragment
 
     public void goToFavorites()
     {
+        Log.d(TAG,"test");
         mAdapter = new MyAdapter(getFavorites(), oc, olc, getContext());
         mRecyclerView.setAdapter(mAdapter);
     }
