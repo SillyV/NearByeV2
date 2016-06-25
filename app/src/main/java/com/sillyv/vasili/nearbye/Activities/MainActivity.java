@@ -1,37 +1,27 @@
 package com.sillyv.vasili.nearbye.activities;
 
 import android.Manifest;
-import android.app.FragmentTransaction;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.preference.PreferenceFragment;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -55,7 +45,10 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity implements  ResultsFragment.OnFragmentInteractionListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback
+/**
+ * Created by Vasili.Fedotov on 6/22/2016.
+ */
+public class MainActivity extends AppCompatActivity implements ResultsFragment.OnFragmentInteractionListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback
 {
     private static final String TAG = "SillyV.MainActivity";
     private static final int PLACE_PICKER_REQUEST = 40001;
@@ -134,7 +127,8 @@ public class MainActivity extends AppCompatActivity implements  ResultsFragment.
             }
             return;
         }
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 10, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, locationListener);
     }
 
     @Override
@@ -255,7 +249,10 @@ public class MainActivity extends AppCompatActivity implements  ResultsFragment.
             @Override
             public boolean onQueryTextChange(String newText)
             {
-                resultsFragment.currentQueryIs(newText);
+                if (findViewById(R.id.portrait_indicator) != null)
+                {
+                    resultsFragment.currentQueryIs(newText);
+                }
                 return false;
             }
         });
@@ -266,7 +263,6 @@ public class MainActivity extends AppCompatActivity implements  ResultsFragment.
             @Override
             public boolean onMenuItemActionExpand(MenuItem item)
             {
-                // Set styles for expanded state here
                 if (getSupportActionBar() != null)
                 {
                     goToList();
@@ -278,12 +274,10 @@ public class MainActivity extends AppCompatActivity implements  ResultsFragment.
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item)
             {
-                // Set styles for collapsed state here
                 if (getSupportActionBar() != null)
                 {
                     goToMaps();
                     getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.WHITE));
-                    //// TODO: 23-May-16 Call functions to change Fragment Visibility
                 }
                 return true;
             }
@@ -295,12 +289,13 @@ public class MainActivity extends AppCompatActivity implements  ResultsFragment.
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.settings) {
-            goToPrefrences();
+        switch (item.getItemId())
+        {
+            case R.id.settings:
+                goToPrefrences();
+                break;
+            case R.id.favorites:
+                goToFavorites();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -323,34 +318,35 @@ public class MainActivity extends AppCompatActivity implements  ResultsFragment.
 
     private void goToMaps()
     {
-        FragmentManager fm = getSupportFragmentManager();
-        showTransaction(mapFragment, fm);
-        hideTransaction(resultsFragment, fm);
+        if (findViewById(R.id.portrait_indicator) != null)
+        {
+            FragmentManager fm = getSupportFragmentManager();
+            showTransaction(mapFragment, fm);
+            hideTransaction(resultsFragment, fm);
+        }
         android.app.FragmentManager fm1 = getFragmentManager();
-        hideTransaction(prefrecesFragment,fm1);
-
+        hideTransaction(prefrecesFragment, fm1);
     }
 
     private void goToList()
     {
-        FragmentManager fm = getSupportFragmentManager();
-        hideTransaction(mapFragment, fm);
-        showTransaction(resultsFragment, fm);
+        if (findViewById(R.id.portrait_indicator) != null)
+        {
+            FragmentManager fm = getSupportFragmentManager();
+            hideTransaction(mapFragment, fm);
+            showTransaction(resultsFragment, fm);
+        }
         android.app.FragmentManager fm1 = getFragmentManager();
-        hideTransaction(prefrecesFragment,fm1);
-
+        hideTransaction(prefrecesFragment, fm1);
     }
 
     private void goToPrefrences()
     {
-
         FragmentManager fm = getSupportFragmentManager();
         hideTransaction(resultsFragment, fm);
         hideTransaction(mapFragment, fm);
         android.app.FragmentManager fm1 = getFragmentManager();
-        showTransaction(prefrecesFragment,fm1);
-
-
+        showTransaction(prefrecesFragment, fm1);
     }
 
     private void goToFavorites()
@@ -361,7 +357,7 @@ public class MainActivity extends AppCompatActivity implements  ResultsFragment.
 
     private void showTransaction(Fragment fragment, FragmentManager fm)
     {
-        if (fragment != null)
+        if (fragment != null &&  !fragment.isVisible())
         {
             fm.beginTransaction()
                     .show(fragment)
@@ -372,7 +368,7 @@ public class MainActivity extends AppCompatActivity implements  ResultsFragment.
 
     private void hideTransaction(Fragment fragment, FragmentManager fm)
     {
-        if (fragment != null)
+        if (fragment != null &&  fragment.isVisible())
         {
             fm.beginTransaction()
                     .hide(fragment)
@@ -383,22 +379,24 @@ public class MainActivity extends AppCompatActivity implements  ResultsFragment.
 
     private void hideTransaction(android.app.Fragment fragment, android.app.FragmentManager fm)
     {
-        if (fragment != null)
+        if (fragment != null && fragment.isVisible())
         {
             fm.beginTransaction()
                     .hide(fragment)
                     .commit();
         }
     }
+
     private void showTransaction(android.app.Fragment fragment, android.app.FragmentManager fm)
     {
-        if (fragment != null)
+        if (fragment != null &&  !fragment.isVisible())
         {
             fm.beginTransaction()
                     .show(fragment)
                     .commit();
         }
     }
+
     @Override
     public void onFragmentInteraction(Results results)
     {
@@ -412,7 +410,10 @@ public class MainActivity extends AppCompatActivity implements  ResultsFragment.
     public void setListVisible()
     {
         goToList();
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        if (findViewById(R.id.portrait_indicator) != null)
+        {
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
     }
 
     @Override
@@ -457,15 +458,16 @@ public class MainActivity extends AppCompatActivity implements  ResultsFragment.
 
 
     @Override
-    public void onBackPressed() {
-       if (resultsFragment.isVisible())
-       {
-           finish();
-       }
+    public void onBackPressed()
+    {
+        if (resultsFragment.isVisible())
+        {
+            finish();
+        }
         else
-       {
-           goToList();
-       }
+        {
+            goToList();
+        }
     }
 
 }

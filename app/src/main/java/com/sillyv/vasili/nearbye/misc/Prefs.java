@@ -3,7 +3,7 @@ package com.sillyv.vasili.nearbye.misc;
 import android.util.Log;
 
 /**
- * Created by vasili on 23-May-16.
+ * Created by Vasili.Fedotov on 23-May-16.
  */
 public class Prefs
 {

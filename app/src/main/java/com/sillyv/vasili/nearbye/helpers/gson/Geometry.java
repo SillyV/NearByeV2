@@ -2,7 +2,7 @@ package com.sillyv.vasili.nearbye.helpers.gson;
 
 
 /**
- * Created by vasil on 5/27/2016.
+ * Created by Vasili.Fedotov on 5/27/2016.
  */
 public class Geometry
 {

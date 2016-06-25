@@ -13,10 +13,8 @@ import android.view.ViewGroup;
 
 import com.sillyv.vasili.nearbye.R;
 import com.sillyv.vasili.nearbye.helpers.database.LocationTableHandler;
-import com.sillyv.vasili.nearbye.helpers.gson.Geometry;
-import com.sillyv.vasili.nearbye.helpers.gson.GoogleMapper;
+import com.sillyv.vasili.nearbye.helpers.gson.GooglePlacesHolder;
 import com.sillyv.vasili.nearbye.helpers.gson.Results;
-import com.sillyv.vasili.nearbye.helpers.recycler.LocationListItem;
 import com.sillyv.vasili.nearbye.helpers.recycler.MyAdapter;
 import com.sillyv.vasili.nearbye.misc.Prefs;
 import com.sillyv.vasili.nearbye.networking.ServiceClient;
@@ -24,6 +22,9 @@ import com.sillyv.vasili.nearbye.networking.ServiceClient;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Created by Vasili.Fedotov on 6/22/2016.
+ */
 public class ResultsFragment
         extends Fragment implements View.OnClickListener, View.OnLongClickListener
 {
@@ -32,12 +33,12 @@ public class ResultsFragment
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
     private MyAdapter mAdapter;
-    private ServiceClient.Callback<GoogleMapper> mCallback = new ServiceClient.Callback<GoogleMapper>()
+    private ServiceClient.Callback<GooglePlacesHolder> mCallback = new ServiceClient.Callback<GooglePlacesHolder>()
     {
         static final String TAG = "SillyV.SearchResults";
 
         @Override
-        public void callback(GoogleMapper response)
+        public void callback(GooglePlacesHolder response)
         {
             mListener.setListVisible();
             mAdapter = new MyAdapter(response.getResults(), oc, olc, getContext());
@@ -103,13 +104,6 @@ public class ResultsFragment
         return aaa;
     }
 
-//    public void onLocationSelected(Results results)
-//    {
-//        if (mListener != null)
-//        {
-//            mListener.onFragmentInteraction(results);
-//        }
-//    }
 
     @Override
     public void onAttach(Context context)
@@ -191,7 +185,7 @@ public class ResultsFragment
         final String myLocation = String.valueOf(location.getLatitude()) + "," + String.valueOf(location.getLongitude());
 
         ServiceClient.get(getContext()).sendGetRequest("/maps/api/place/nearbysearch/json",
-                mCallback, GoogleMapper.class, getStringParamsForAddBobRequest(myLocation, query));
+                mCallback, GooglePlacesHolder.class, getStringParamsForAddBobRequest(myLocation, query));
 
         //  HttpRequest httpRequest = new HttpRequest(this, this, Prefs.urlBuilderLocation("31.801999,35.2093514",2000), 4001);
         //  httpRequest.runRequest();
@@ -204,7 +198,7 @@ public class ResultsFragment
         final String myLocation = String.valueOf(location.getLatitude()) + "," + String.valueOf(location.getLongitude());
 
         ServiceClient.get(getContext()).sendGetRequest("/maps/api/place/nearbysearch/json",
-                mCallback, GoogleMapper.class, getStringParamsForAddBobRequest(myLocation));
+                mCallback, GooglePlacesHolder.class, getStringParamsForAddBobRequest(myLocation));
 
         //  HttpRequest httpRequest = new HttpRequest(this, this, Prefs.urlBuilderLocation("31.801999,35.2093514",2000), 4001);
         //  httpRequest.runRequest();

@@ -20,7 +20,7 @@ import com.sillyv.vasili.nearbye.helpers.gson.Results;
 import com.squareup.picasso.Picasso;
 
 /**
- * Created by vasil on 5/27/2016.
+ * Created by Vasili.Fedotov on 5/27/2016.
  */
 
 public class MapFragment extends com.google.android.gms.maps.SupportMapFragment implements OnMapReadyCallback

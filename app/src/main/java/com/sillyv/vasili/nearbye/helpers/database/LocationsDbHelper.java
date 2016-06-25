@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by vasil on 5/27/2016.
+ * Created by Vasili.Fedotov on 6/22/2016.
  */
 
 public class LocationsDbHelper extends SQLiteOpenHelper

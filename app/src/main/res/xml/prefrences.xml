@@ -7,6 +7,7 @@
             android:entryValues="@array/entryvalues_list_preference"
             android:key="unit_preference"
             android:title="@string/unit_preference"
+
             />
     </PreferenceCategory>
     <PreferenceCategory

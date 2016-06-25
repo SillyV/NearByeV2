@@ -3,10 +3,10 @@ package com.sillyv.vasili.nearbye.helpers.gson;
 import java.util.List;
 
 /**
- * Created by vasil on 5/27/2016.
+ * Created by Vasili.Fedotov on 5/27/2016.
  */
 
-public class GoogleMapper
+public class GooglePlacesHolder
 {
     private List<String> html_attributions;
     private String next_page_token;
@@ -15,7 +15,7 @@ public class GoogleMapper
     //private List<String> debug_info;
 
 
-    public GoogleMapper(List<String> html_attributions, String next_page_token, List<Results> results, String status)
+    public GooglePlacesHolder(List<String> html_attributions, String next_page_token, List<Results> results, String status)
     {
 
 //        this.debug_info = debug_info;
