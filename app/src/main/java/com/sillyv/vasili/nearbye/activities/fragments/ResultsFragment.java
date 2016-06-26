@@ -1,8 +1,10 @@
 package com.sillyv.vasili.nearbye.activities.fragments;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.gson.Gson;
 import com.sillyv.vasili.nearbye.R;
 import com.sillyv.vasili.nearbye.helpers.database.LocationTableHandler;
 import com.sillyv.vasili.nearbye.helpers.gson.GooglePlacesHolder;
@@ -170,6 +173,23 @@ public class ResultsFragment
         Log.d(TAG,"test");
         mAdapter = new MyAdapter(getFavorites(), oc, olc, getContext());
         mRecyclerView.setAdapter(mAdapter);
+    }
+
+    public void goToHistory()
+    {
+       mCallback.callback(getHistory());
+    }
+
+    private GooglePlacesHolder getHistory()
+    {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String jsonString = sp.getString("JSON","");
+        if (!jsonString.equals(""))
+        {
+            GooglePlacesHolder gph = new Gson().fromJson(jsonString,GooglePlacesHolder.class);
+            return (gph);
+        }
+        return null;
     }
 
     public interface OnFragmentInteractionListener

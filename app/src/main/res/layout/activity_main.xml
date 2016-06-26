@@ -21,7 +21,6 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-
         <android.support.v7.widget.Toolbar
             android:id="@+id/my_awesome_toolbar"
             style="@style/ToolbarLightOverflow"
@@ -42,6 +41,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:layout="@layout/abc_action_menu_layout"/>
+
 
         <fragment
             android:id="@+id/prefrences_fragment"

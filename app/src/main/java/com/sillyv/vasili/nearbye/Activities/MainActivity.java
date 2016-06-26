@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -79,7 +80,11 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
         setUpActivityControls();
         mappingSetup();
         LocationSetup();
+
     }
+
+
+
 
     private void LocationSetup()
     {
@@ -217,8 +222,25 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
         setSupportActionBar(mToolBar);
         resultsFragment = (ResultsFragment) getSupportFragmentManager().findFragmentById(R.id.list_fragment);
         prefrecesFragment = (PrefsFragment) getFragmentManager().findFragmentById(R.id.prefrences_fragment);
+        if (!isNetworkConnected())
+        {
+            gotoHistory();
+            initialSearchPerformed = true;
+            return;
+        }
         goToMaps();
     }
+
+    private void gotoHistory()
+    {
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        goToList();
+        resultsFragment.goToHistory();
+        FragmentManager fm = getSupportFragmentManager();
+        hideTransaction(mapFragment, fm);
+    }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
@@ -357,7 +379,7 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
 
     private void showTransaction(Fragment fragment, FragmentManager fm)
     {
-        if (fragment != null &&  !fragment.isVisible())
+        if (fragment != null && !fragment.isVisible())
         {
             fm.beginTransaction()
                     .show(fragment)
@@ -368,7 +390,7 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
 
     private void hideTransaction(Fragment fragment, FragmentManager fm)
     {
-        if (fragment != null &&  fragment.isVisible())
+        if (fragment != null)
         {
             fm.beginTransaction()
                     .hide(fragment)
@@ -379,7 +401,7 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
 
     private void hideTransaction(android.app.Fragment fragment, android.app.FragmentManager fm)
     {
-        if (fragment != null && fragment.isVisible())
+        if (fragment != null)
         {
             fm.beginTransaction()
                     .hide(fragment)
@@ -389,7 +411,7 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
 
     private void showTransaction(android.app.Fragment fragment, android.app.FragmentManager fm)
     {
-        if (fragment != null &&  !fragment.isVisible())
+        if (fragment != null && !fragment.isVisible())
         {
             fm.beginTransaction()
                     .show(fragment)
@@ -468,6 +490,12 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
         {
             goToList();
         }
+    }
+
+    private boolean isNetworkConnected()
+    {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getActiveNetworkInfo() != null;
     }
 
 }

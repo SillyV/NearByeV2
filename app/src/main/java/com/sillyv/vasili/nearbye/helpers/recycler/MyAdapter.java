@@ -129,7 +129,11 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>
     @Override
     public int getItemCount()
     {
-        return mDataset.size();
+        if (mDataset!=null)
+        {
+            return mDataset.size();
+        }
+        return 0;
     }
 
     public void addItem(Results results)

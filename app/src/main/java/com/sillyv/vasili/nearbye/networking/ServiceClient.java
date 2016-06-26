@@ -83,19 +83,7 @@ public class ServiceClient
             @Override
             public void onErrorResponse(VolleyError error)
             {
-                String newResponse;
-                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-                newResponse = sharedPreferences.getString("JSON","");
-                if (!newResponse.equals(""))
-                {
-                    Gson gson = new Gson();
-                    GooglePlacesHolder t = gson.fromJson(newResponse, responseClass);
-                    callback.callback(t);
-                }
-                else
-                {
-                    Log.e(TAG, error.getMessage());
-                }
+                Log.e(TAG, error.getMessage());
             }
         })
         {
