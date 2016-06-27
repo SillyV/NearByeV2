@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#EFF0F1"
+                tools:context=".activities.MainActivity">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/my_awesome_toolbar"
+            style="@style/ToolbarLightOverflow"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_margin="16dp"
+            android:background="#ffffffff"
+            android:minHeight="?attr/actionBarSize"
+            >
+        </android.support.v7.widget.Toolbar>
+
+        <LinearLayout
+            android:id="@+id/linear_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <fragment
+                android:id="@+id/list_fragment"
+                android:name="com.sillyv.vasili.nearbye.activities.fragments.ResultsFragment"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                tools:layout="@layout/abc_action_menu_layout"/>
+
+            <fragment
+                android:id="@+id/map"
+                android:name="com.sillyv.vasili.nearbye.activities.fragments.MapFragment"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                tools:layout="@layout/abc_screen_simple"/>
+        </LinearLayout>
+
+
+        <fragment
+            android:id="@+id/prefrences_fragment"
+            android:name="com.sillyv.vasili.nearbye.activities.fragments.PrefsFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout="@layout/abc_action_bar_view_list_nav_layout"/>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/portrait_indicator"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:visibility="invisible"/>
+</RelativeLayout>
