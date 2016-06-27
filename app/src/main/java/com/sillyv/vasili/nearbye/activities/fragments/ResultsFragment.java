@@ -54,6 +54,10 @@ public class ResultsFragment
         public void callback(GooglePlacesHolder response)
         {
             mListener.setListVisible();
+            if (response == null)
+            {
+                return;
+            }
             mAdapter = new MyAdapter(response.getResults(), oc, olc, getContext());
             if (hasLocation)
             {

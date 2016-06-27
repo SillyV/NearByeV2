@@ -4,24 +4,24 @@
     <item
         android:id="@+id/settings"
         android:icon="@drawable/ic_settings_white_24dp"
-        app:showAsAction="never"
-        android:title="Settings"/>
+        android:title="Settings"
+        app:showAsAction="never"/>
     <item
         android:id="@+id/favorites"
         android:icon="@drawable/ic_settings_white_24dp"
-        app:showAsAction="never"
-        android:title="Favorites"/>
+        android:title="Favorites"
+        app:showAsAction="never"/>
     <item
         android:id="@+id/nearbye"
         android:icon="@drawable/marker"
-        app:showAsAction="always"
         android:title="test"
+        app:showAsAction="always"
         />
     <item
         android:id="@+id/action_search"
+        android:icon="@android:drawable/ic_menu_search"
         android:orderInCategory="100"
         android:title="search"
-        android:icon="@android:drawable/ic_menu_search"
         app:actionViewClass="android.support.v7.widget.SearchView"
         app:showAsAction="always|collapseActionView"/>
 </menu>

@@ -217,6 +217,8 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
         searchMenuItem = menu.findItem(R.id.action_search);
+
+        final MenuItem searchNearBye = menu.findItem(R.id.nearbye);
         if (searchMenuItem == null)
         {
             return true;
@@ -256,6 +258,7 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
             {
                 if (getSupportActionBar() != null)
                 {
+                    searchNearBye.setVisible(false);
                     goToList();
                     getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 }
@@ -267,6 +270,7 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
             {
                 if (getSupportActionBar() != null)
                 {
+                    searchNearBye.setVisible(true);
                     goToMaps();
                     getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.WHITE));
                 }
@@ -287,9 +291,21 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
                 break;
             case R.id.favorites:
                 goToFavorites();
+                break;
+            case R.id.nearbye:
+                searchNearbye();
         }
         initialSearchPerformed = true;
         return super.onOptionsItemSelected(item);
+    }
+
+    private void searchNearbye()
+    {
+        if(locationFound)
+        {
+            resultsFragment.SearchQueryINGooglePlacesWebService(myLocation);
+            initialSearchPerformed = true;
+        }
     }
 
     protected void onStart()
