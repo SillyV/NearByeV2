@@ -2,6 +2,8 @@ package com.sillyv.vasili.nearbye.activities;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -30,7 +32,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -39,10 +40,8 @@ import com.sillyv.vasili.nearbye.activities.fragments.MapFragment;
 import com.sillyv.vasili.nearbye.activities.fragments.PrefsFragment;
 import com.sillyv.vasili.nearbye.activities.fragments.ResultsFragment;
 import com.sillyv.vasili.nearbye.helpers.gson.Results;
-import com.sillyv.vasili.nearbye.helpers.recycler.LocationListItem;
 import com.sillyv.vasili.nearbye.misc.Prefs;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,24 +50,28 @@ import java.util.Map;
  */
 public class MainActivity extends AppCompatActivity implements ResultsFragment.OnFragmentInteractionListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback
 {
+    //Constants
     private static final String TAG = "SillyV.MainActivity";
-    private static final int PLACE_PICKER_REQUEST = 40001;
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 6615;
-    private ResultsFragment resultsFragment;
-    private MapFragment mapFragment;
-    private GoogleApiClient mGoogleApiClient;
-    private SupportMapFragment map;
-    MenuItem searchMenuItem;
-    private Toolbar mToolBar;
-    private LocationManager locationManager;
-    private LocationListener locationListener;
+
+    //Primitive Fields
+    private String myQuery;
     private boolean searchRequested = false;
     private boolean locationFound = false;
     private boolean initialSearchPerformed = false;
+
+    //Complex Fields
+    private ResultsFragment resultsFragment;
+    private MapFragment mapFragment;
+    private GoogleApiClient mGoogleApiClient;
+    private MenuItem searchMenuItem;
+    private Toolbar mToolBar;
+    private LocationManager locationManager;
+    private LocationListener locationListener;
     private Location myLocation;
-    private String myQuery;
     private PrefsFragment prefrecesFragment;
 
+    //Constructors / onCreate methods
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -80,11 +83,38 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
         setUpActivityControls();
         mappingSetup();
         LocationSetup();
+        registerBatteryReciever();
 
     }
 
 
+    //Initialization Methods
+    private void setUpActivityControls()
+    {
+        mToolBar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
+        setSupportActionBar(mToolBar);
+        resultsFragment = (ResultsFragment) getSupportFragmentManager().findFragmentById(R.id.list_fragment);
+        prefrecesFragment = (PrefsFragment) getFragmentManager().findFragmentById(R.id.prefrences_fragment);
+        if (!isNetworkConnected())
+        {
+            gotoHistory();
+            initialSearchPerformed = true;
+            return;
+        }
+        goToMaps();
+    }
 
+    private void mappingSetup()
+    {
+        if (mGoogleApiClient == null)
+        {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+    }
 
     private void LocationSetup()
     {
@@ -93,48 +123,63 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
         {
             public void onLocationChanged(Location location)
             {
-                // Called when a new location is found by the network location provider.
                 makeUseOfNewLocation(location);
             }
 
-            public void onStatusChanged(String provider, int status, Bundle extras) {}
+            public void onStatusChanged(String provider, int status, Bundle extras)
+            {
+            }
 
-            public void onProviderEnabled(String provider) {}
+            public void onProviderEnabled(String provider)
+            {
+            }
 
-            public void onProviderDisabled(String provider) {}
+            public void onProviderDisabled(String provider)
+            {
+            }
         };
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
         {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION))
-            {
-
-                // Show an expanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-
-            }
-            else
-            {
-
-                // No explanation needed, we can request the permission.
-
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
-            }
+            askPermission();
             return;
         }
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 10, locationListener);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, locationListener);
     }
+
+    private void askPermission()
+    {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.ACCESS_FINE_LOCATION))
+        {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_LOCATION);
+        }
+        else
+        {
+
+            // No explanation needed, we can request the permission.
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_LOCATION);
+
+            // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+            // app-defined int constant. The callback method gets the
+            // result of the request.
+        }
+    }
+
+
+    private void registerBatteryReciever()
+    {
+        IntentFilter iFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        registerReceiver(null, iFilter);
+    }
+    //Override Methods
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -163,84 +208,8 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
                 }
                 return;
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
-
-    private void makeUseOfNewLocation(Location location)
-    {
-        myLocation = location;
-        locationFound = true;
-        if (searchRequested)
-        {
-            initiateSearch();
-        }
-        else if (!initialSearchPerformed)
-        {
-            resultsFragment.SearchQueryINGooglePlacesWebService(myLocation);
-            initialSearchPerformed = true;
-        }
-    }
-
-    private void initiateSearch()
-    {
-        searchRequested = false;
-        initialSearchPerformed = true;
-        resultsFragment.SearchQueryINGooglePlacesWebService(myQuery, myLocation);
-        Log.d(TAG, "location found and search started");
-    }
-
-    private void mappingSetup()
-    {
-        if (mGoogleApiClient == null)
-        {
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-        }
-    }
-
-    protected void onStart()
-    {
-        mGoogleApiClient.connect();
-        super.onStart();
-    }
-
-    protected void onStop()
-    {
-        mGoogleApiClient.disconnect();
-        super.onStop();
-    }
-
-    private void setUpActivityControls()
-    {
-        mToolBar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
-        setSupportActionBar(mToolBar);
-        resultsFragment = (ResultsFragment) getSupportFragmentManager().findFragmentById(R.id.list_fragment);
-        prefrecesFragment = (PrefsFragment) getFragmentManager().findFragmentById(R.id.prefrences_fragment);
-        if (!isNetworkConnected())
-        {
-            gotoHistory();
-            initialSearchPerformed = true;
-            return;
-        }
-        goToMaps();
-    }
-
-    private void gotoHistory()
-    {
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        goToList();
-        resultsFragment.goToHistory();
-        FragmentManager fm = getSupportFragmentManager();
-        hideTransaction(mapFragment, fm);
-    }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
@@ -273,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
             {
                 if (findViewById(R.id.portrait_indicator) != null)
                 {
-                    resultsFragment.currentQueryIs(newText);
+                    //  resultsFragment.currentQueryIs(newText);
                 }
                 return false;
             }
@@ -319,105 +288,37 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
             case R.id.favorites:
                 goToFavorites();
         }
+        initialSearchPerformed = true;
         return super.onOptionsItemSelected(item);
     }
 
-
-    public void onPlacesClick(View view)
+    protected void onStart()
     {
-
+        mGoogleApiClient.connect();
+        super.onStart();
     }
 
-    private static Map<String, String> getParamsForAddBobRequest(String location, String radius, String query)
+    protected void onStop()
     {
-        Map<String, String> params = new HashMap<>();
-        params.put("keyword", query);
-        params.put("location", location);
-        params.put("radius", radius);
-        params.put("key", Prefs.API_KEY);
-        return params;
+        mGoogleApiClient.disconnect();
+        super.onStop();
     }
 
-    private void goToMaps()
+    @Override
+    public void onBackPressed()
     {
-        if (findViewById(R.id.portrait_indicator) != null)
+        if (resultsFragment.isVisible())
         {
-            FragmentManager fm = getSupportFragmentManager();
-            showTransaction(mapFragment, fm);
-            hideTransaction(resultsFragment, fm);
+            finish();
         }
-        android.app.FragmentManager fm1 = getFragmentManager();
-        hideTransaction(prefrecesFragment, fm1);
-    }
-
-    private void goToList()
-    {
-        if (findViewById(R.id.portrait_indicator) != null)
+        else
         {
-            FragmentManager fm = getSupportFragmentManager();
-            hideTransaction(mapFragment, fm);
-            showTransaction(resultsFragment, fm);
-        }
-        android.app.FragmentManager fm1 = getFragmentManager();
-        hideTransaction(prefrecesFragment, fm1);
-    }
-
-    private void goToPrefrences()
-    {
-        FragmentManager fm = getSupportFragmentManager();
-        hideTransaction(resultsFragment, fm);
-        hideTransaction(mapFragment, fm);
-        android.app.FragmentManager fm1 = getFragmentManager();
-        showTransaction(prefrecesFragment, fm1);
-    }
-
-    private void goToFavorites()
-    {
-        goToList();
-        resultsFragment.goToFavorites();
-    }
-
-    private void showTransaction(Fragment fragment, FragmentManager fm)
-    {
-        if (fragment != null && !fragment.isVisible())
-        {
-            fm.beginTransaction()
-                    .show(fragment)
-                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                    .commit();
+            goToList();
+            resultsFragment.updateUnits();
         }
     }
 
-    private void hideTransaction(Fragment fragment, FragmentManager fm)
-    {
-        if (fragment != null)
-        {
-            fm.beginTransaction()
-                    .hide(fragment)
-                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                    .commit();
-        }
-    }
-
-    private void hideTransaction(android.app.Fragment fragment, android.app.FragmentManager fm)
-    {
-        if (fragment != null)
-        {
-            fm.beginTransaction()
-                    .hide(fragment)
-                    .commit();
-        }
-    }
-
-    private void showTransaction(android.app.Fragment fragment, android.app.FragmentManager fm)
-    {
-        if (fragment != null && !fragment.isVisible())
-        {
-            fm.beginTransaction()
-                    .show(fragment)
-                    .commit();
-        }
-    }
+    //Implemented Methods
 
     @Override
     public void onFragmentInteraction(Results results)
@@ -478,18 +379,143 @@ public class MainActivity extends AppCompatActivity implements ResultsFragment.O
         googleMap.setMyLocationEnabled(true);
     }
 
-
-    @Override
-    public void onBackPressed()
+    //subs
+    private void makeUseOfNewLocation(Location location)
     {
-        if (resultsFragment.isVisible())
+        myLocation = location;
+        locationFound = true;
+        resultsFragment.locationChanged(location);
+        if (searchRequested)
         {
-            finish();
+            initiateSearch();
+        }
+        else if (!initialSearchPerformed)
+        {
+            resultsFragment.SearchQueryINGooglePlacesWebService(myLocation);
+            initialSearchPerformed = true;
+        }
+    }
+
+    private void initiateSearch()
+    {
+        searchRequested = false;
+        initialSearchPerformed = true;
+        resultsFragment.SearchQueryINGooglePlacesWebService(myQuery, myLocation);
+        Log.d(TAG, "location found and search started");
+    }
+
+    private void gotoHistory()
+    {
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        goToList();
+        resultsFragment.goToHistory();
+        FragmentManager fm = getSupportFragmentManager();
+        hideSupportTransaction(mapFragment, fm);
+    }
+
+    private void goToMaps()
+    {
+
+        if (findViewById(R.id.linear_container) == null)
+        {
+            FragmentManager fm = getSupportFragmentManager();
+            showSupportTransaction(mapFragment, fm);
+            hideSupportTransaction(resultsFragment, fm);
         }
         else
         {
-            goToList();
+            findViewById(R.id.linear_container).setVisibility(View.VISIBLE);
         }
+        android.app.FragmentManager fm1 = getFragmentManager();
+        hideTransaction(prefrecesFragment, fm1);
+    }
+
+    private void goToList()
+    {
+        if (findViewById(R.id.linear_container) == null)
+        {
+            FragmentManager fm = getSupportFragmentManager();
+            hideSupportTransaction(mapFragment, fm);
+            showSupportTransaction(resultsFragment, fm);
+        }
+        else
+        {
+            findViewById(R.id.linear_container).setVisibility(View.VISIBLE);
+        }
+        android.app.FragmentManager fm1 = getFragmentManager();
+        hideTransaction(prefrecesFragment, fm1);
+    }
+
+    private void goToPrefrences()
+    {
+        if (findViewById(R.id.linear_container) != null)
+        {
+            findViewById(R.id.linear_container).setVisibility(View.GONE);
+        }
+        FragmentManager fm = getSupportFragmentManager();
+        hideSupportTransaction(resultsFragment, fm);
+        hideSupportTransaction(mapFragment, fm);
+        android.app.FragmentManager fm1 = getFragmentManager();
+        showTransaction(prefrecesFragment, fm1);
+    }
+
+    private void goToFavorites()
+    {
+        goToList();
+        resultsFragment.goToFavorites();
+    }
+
+    private void showSupportTransaction(Fragment fragment, FragmentManager fm)
+    {
+        if (fragment != null && !fragment.isVisible())
+        {
+            fm.beginTransaction()
+                    .show(fragment)
+                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                    .commit();
+        }
+    }
+
+    private void hideSupportTransaction(Fragment fragment, FragmentManager fm)
+    {
+        if (fragment != null)
+        {
+            fm.beginTransaction()
+                    .hide(fragment)
+                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                    .commit();
+        }
+    }
+
+    private void hideTransaction(android.app.Fragment fragment, android.app.FragmentManager fm)
+    {
+        if (fragment != null)
+        {
+            fm.beginTransaction()
+                    .hide(fragment)
+                    .commit();
+        }
+    }
+
+    private void showTransaction(android.app.Fragment fragment, android.app.FragmentManager fm)
+    {
+        if (fragment != null && !fragment.isVisible())
+        {
+            fm.beginTransaction()
+                    .show(fragment)
+                    .commit();
+        }
+    }
+
+    //Functions
+    private static Map<String, String> getParamsForAddBobRequest(String location, String radius, String query)
+    {
+        Map<String, String> params = new HashMap<>();
+        params.put("keyword", query);
+        params.put("location", location);
+        params.put("radius", radius);
+        params.put("key", Prefs.API_KEY);
+        return params;
     }
 
     private boolean isNetworkConnected()

@@ -8,6 +8,7 @@ public class Geometry
 {
     private Location location;
 
+
     public Geometry(Location location)
     {
 

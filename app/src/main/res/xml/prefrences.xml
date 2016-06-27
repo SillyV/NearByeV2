@@ -5,7 +5,7 @@
             android:dialogTitle="@string/dialog_title_list_preference"
             android:entries="@array/entries_list_preference"
             android:entryValues="@array/entryvalues_list_preference"
-            android:key="unit_preference"
+            android:key="@string/unit_list_key"
             android:title="@string/unit_preference"
 
             />

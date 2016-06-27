@@ -12,6 +12,7 @@ public class Photos
     private List<String> html_attributions;
     private String photo_reference;
 
+
     public Photos(int height, int width, List<String> html_attributions, String photo_reference)
     {
 

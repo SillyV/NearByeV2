@@ -15,6 +15,7 @@ public class Location
         this.lat = lat;
     }
 
+
     public Double getLat()
     {
         return lat;

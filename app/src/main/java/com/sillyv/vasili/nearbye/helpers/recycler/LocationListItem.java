@@ -6,4 +6,5 @@ package com.sillyv.vasili.nearbye.helpers.recycler;
 
 public class LocationListItem
 {
+
 }

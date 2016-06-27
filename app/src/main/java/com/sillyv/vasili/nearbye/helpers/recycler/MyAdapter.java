@@ -1,6 +1,7 @@
 package com.sillyv.vasili.nearbye.helpers.recycler;
 
 import android.content.Context;
+import android.location.Location;
 import android.support.v7.widget.RecyclerView;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -40,6 +41,22 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>
     private List<Results> mDataset;
     private View.OnClickListener mListener;
 
+    public void updateDistance(Location location, String unit)
+    {
+        for (Results results : mDataset)
+        {
+            results.setDistance(location,unit);
+        }
+    }
+
+    public void updateNullDistance()
+    {
+        for (Results results : mDataset)
+        {
+            results.setNullDistance();
+        }
+    }
+
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
@@ -69,8 +86,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>
         {
             container.clearAnimation();
         }
-
-
 
 
     }
@@ -105,9 +120,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>
     {
         holder.name.setText(mDataset.get(position).getName());
         holder.address.setText(mDataset.get(position).getVicinity());
-        holder.ratings.setText(String.valueOf(mDataset.get(position).getRating()) + " ★");
+        holder.ratings.setText(String.valueOf(mDataset.get(position).getDistance()));
         Picasso.with(holder.icon.getContext()).load(mDataset.get(position).getIcon()).into(holder.icon);
-        //noinspection WrongConstant
+        //noinspection ResourceType
         holder.favorites.setVisibility(visiblilityMAp.get(mDataset.get(position).isFavorite()));
         setAnimation(holder.container, position);
 
@@ -129,7 +144,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>
     @Override
     public int getItemCount()
     {
-        if (mDataset!=null)
+        if (mDataset != null)
         {
             return mDataset.size();
         }
@@ -144,7 +159,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>
     @Override
     public void onViewDetachedFromWindow(ViewHolder holder)
     {
-        ((ViewHolder)holder).clearAnimation();    }
+        ((ViewHolder) holder).clearAnimation();
+    }
 
     public void removeItem(Results results)
     {

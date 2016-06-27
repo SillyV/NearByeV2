@@ -14,6 +14,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.sillyv.vasili.nearbye.helpers.gson.GooglePlacesHolder;
+import com.sillyv.vasili.nearbye.misc.Prefs;
 
 import java.util.Map;
 
@@ -72,7 +73,7 @@ public class ServiceClient
                         {
                             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
                             SharedPreferences.Editor editor = prefs.edit();
-                            editor.putString("JSON", response);
+                            editor.putString(Prefs.SAVED_JSON_RESULT, response);
                             editor.commit();
                         }
                         callback.callback(t);

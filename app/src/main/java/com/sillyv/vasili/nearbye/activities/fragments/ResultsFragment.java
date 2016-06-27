@@ -31,11 +31,21 @@ import java.util.List;
 public class ResultsFragment
         extends Fragment implements View.OnClickListener, View.OnLongClickListener
 {
+    //Constants
     private static final String TAG = "test";
+
+    //Primitive Fields
+    private boolean hasLocation = false;
+
+    //Complex Fields
+    private MyAdapter mAdapter;
+    private LinearLayoutManager mLayoutManager;
     private OnFragmentInteractionListener mListener;
     private RecyclerView mRecyclerView;
-    private LinearLayoutManager mLayoutManager;
-    private MyAdapter mAdapter;
+    private View.OnClickListener oc;
+    private View.OnLongClickListener olc;
+    private Location myLocation;
+    //Custom Class Fields
     private ServiceClient.Callback<GooglePlacesHolder> mCallback = new ServiceClient.Callback<GooglePlacesHolder>()
     {
         static final String TAG = "SillyV.SearchResults";
@@ -45,11 +55,20 @@ public class ResultsFragment
         {
             mListener.setListVisible();
             mAdapter = new MyAdapter(response.getResults(), oc, olc, getContext());
+            if (hasLocation)
+            {
+                mAdapter.updateDistance(myLocation, Prefs.getUnit(getContext()));
+            }
+            else
+            {
+                mAdapter.updateNullDistance();
+            }
             mRecyclerView.setAdapter(mAdapter);
         }
     };
-    private View.OnClickListener oc;
-    private View.OnLongClickListener olc;
+
+
+    //Constructors / onCreate methods
 
     public ResultsFragment()
     {
@@ -83,31 +102,22 @@ public class ResultsFragment
         View v = inflater.inflate(R.layout.fragment_results, container, false);
         oc = this;
         olc = this;
-        //code here
 
         mRecyclerView = (RecyclerView) v.findViewById(R.id.results_recycler_view);
         mRecyclerView.setHasFixedSize(true);
 
-        // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(getContext());
-       mRecyclerView.setLayoutManager(mLayoutManager);
-        // specify an adapter (see also next example)
-//        mAdapter = new MyAdapter(getFavorites(), oc, olc, getContext());
-//        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setLayoutManager(mLayoutManager);
 
 
         return v;
     }
 
-    private List<Results> getFavorites()
-    {
-        List<Results> aaa = new ArrayList<>();
-        LocationTableHandler db = new LocationTableHandler(getContext());
-        aaa.addAll(db.getAllLocations());
-        return aaa;
-    }
 
 
+
+
+    //Override Methods
     @Override
     public void onAttach(Context context)
     {
@@ -123,6 +133,7 @@ public class ResultsFragment
         }
     }
 
+
     @Override
     public void onDetach()
     {
@@ -130,8 +141,7 @@ public class ResultsFragment
         mListener = null;
     }
 
-
-
+    //Implemented Methods
     @Override
     public void onClick(View v)
     {
@@ -158,81 +168,82 @@ public class ResultsFragment
         return false;
     }
 
-    public void currentQueryIs(String newText)
+    //Subs
+
+    public void updateUnits()
     {
-        if (newText.equals(""))
-        {
-            mAdapter = new MyAdapter(getFavorites(), oc, olc, getContext());
-            mRecyclerView.setAdapter(mAdapter);
-
-        }
+        mAdapter.updateDistance(myLocation,Prefs.getUnit(getContext()));
+        mAdapter.notifyDataSetChanged();
     }
-
     public void goToFavorites()
     {
-        Log.d(TAG,"test");
-        mAdapter = new MyAdapter(getFavorites(), oc, olc, getContext());
-        mRecyclerView.setAdapter(mAdapter);
+        mCallback.callback(new GooglePlacesHolder(null, null, getFavorites(), null));
     }
+
+    //    public void currentQueryIs(String newText)
+//    {
+//        if (newText.equals(""))
+//        {
+//            mAdapter = new MyAdapter(getFavorites(), oc, olc, getContext());
+//            mRecyclerView.setAdapter(mAdapter);
+//
+//        }
+//    }
 
     public void goToHistory()
     {
-       mCallback.callback(getHistory());
+        mCallback.callback(getHistory());
     }
+
+    public void SearchQueryINGooglePlacesWebService(final String query, final Location location)
+    {
+        final String myLocation = String.valueOf(location.getLatitude()) + "," + String.valueOf(location.getLongitude());
+        ServiceClient.get(getContext()).sendGetRequest("/maps/api/place/nearbysearch/json",
+                mCallback, GooglePlacesHolder.class, Prefs.getStringParamForSearch(myLocation, query));
+    }
+
+
+    public void SearchQueryINGooglePlacesWebService(final Location location)
+    {
+        final String myLocation = String.valueOf(location.getLatitude()) + "," + String.valueOf(location.getLongitude());
+        ServiceClient.get(getContext()).sendGetRequest("/maps/api/place/nearbysearch/json",
+                mCallback, GooglePlacesHolder.class, Prefs.getStringParamForSearch(myLocation));
+    }
+
+    public void locationChanged(android.location.Location location)
+    {
+        this.myLocation = location;
+        this.hasLocation = true;
+    }
+
+    //Functions
 
     private GooglePlacesHolder getHistory()
     {
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
-        String jsonString = sp.getString("JSON","");
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String jsonString = sharedPreferences.getString(Prefs.SAVED_JSON_RESULT, "");
         if (!jsonString.equals(""))
         {
-            GooglePlacesHolder gph = new Gson().fromJson(jsonString,GooglePlacesHolder.class);
-            return (gph);
+            GooglePlacesHolder googlePlacesHolder = new Gson().fromJson(jsonString, GooglePlacesHolder.class);
+            return (googlePlacesHolder);
         }
         return null;
     }
+
+    private List<Results> getFavorites()
+    {
+        List<Results> resultsArrayList = new ArrayList<>();
+        LocationTableHandler db = new LocationTableHandler(getContext());
+        resultsArrayList.addAll(db.getAllLocations());
+        return resultsArrayList;
+    }
+
+    //Interface
 
     public interface OnFragmentInteractionListener
     {
         void onFragmentInteraction(Results results);
 
         void setListVisible();
-    }
-
-    public void SearchQueryINGooglePlacesWebService(final String query, final Location location)
-    {
-
-        final String myLocation = String.valueOf(location.getLatitude()) + "," + String.valueOf(location.getLongitude());
-
-        ServiceClient.get(getContext()).sendGetRequest("/maps/api/place/nearbysearch/json",
-                mCallback, GooglePlacesHolder.class, getStringParamsForAddBobRequest(myLocation, query));
-
-        //  HttpRequest httpRequest = new HttpRequest(this, this, Prefs.urlBuilderLocation("31.801999,35.2093514",2000), 4001);
-        //  httpRequest.runRequest();
-    }
-
-
-    public void SearchQueryINGooglePlacesWebService(final Location location)
-    {
-
-        final String myLocation = String.valueOf(location.getLatitude()) + "," + String.valueOf(location.getLongitude());
-
-        ServiceClient.get(getContext()).sendGetRequest("/maps/api/place/nearbysearch/json",
-                mCallback, GooglePlacesHolder.class, getStringParamsForAddBobRequest(myLocation));
-
-        //  HttpRequest httpRequest = new HttpRequest(this, this, Prefs.urlBuilderLocation("31.801999,35.2093514",2000), 4001);
-        //  httpRequest.runRequest();
-    }
-
-    private String getStringParamsForAddBobRequest(String myLocation)
-    {
-        return "?location=" + myLocation + "&radius=2000" + "&key=" + Prefs.API_KEY;
-    }
-
-
-    private String getStringParamsForAddBobRequest(String location, String query)
-    {
-        query = query.trim().replace(" ", "+");
-        return "?keyword=" + query + "&location=" + location + "&rankby=distance" + "&key=" + Prefs.API_KEY;
     }
 }

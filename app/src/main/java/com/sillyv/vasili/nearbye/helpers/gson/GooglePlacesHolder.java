@@ -15,6 +15,7 @@ public class GooglePlacesHolder
     //private List<String> debug_info;
 
 
+
     public GooglePlacesHolder(List<String> html_attributions, String next_page_token, List<Results> results, String status)
     {
 

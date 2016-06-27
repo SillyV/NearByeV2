@@ -21,6 +21,7 @@ import java.util.List;
 public class LocationTableHandler
 {
 
+
     public static final String LOCATIONS_TABLE_NAME = "locations_table";
     public static final String ID = "id";
     public static final String NAME = "title";

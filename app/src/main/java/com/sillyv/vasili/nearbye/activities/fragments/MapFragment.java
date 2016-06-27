@@ -25,18 +25,21 @@ import com.squareup.picasso.Picasso;
 
 public class MapFragment extends com.google.android.gms.maps.SupportMapFragment implements OnMapReadyCallback
 {
+    //Primitive Fields
 
-    private SupportMapFragment mapFragment;
+    //Complex Fields
     private Results result;
     private Context context;
 
+    //Constructors / onCreate methods
+
+    //Methods
     public void setLocation(Results result, Context context)
     {
         this.result = result;
         this.context = context;
         this.getMapAsync(this);
     }
-
 
     @Override
     public void onMapReady(GoogleMap googleMap)
@@ -45,8 +48,9 @@ public class MapFragment extends com.google.android.gms.maps.SupportMapFragment 
         googleMap.getUiSettings().setMyLocationButtonEnabled(false);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                 new LatLng(result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng()), 16));
-        googleMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)) // Anchors the marker on the bottom left
-                .position(new LatLng(result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng()))); //Iasi, Romania
+        googleMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.marker))
+                .position(new LatLng(result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng())));
+        //// TODO: 27-Jun-16 Edit Marker.
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
         {
             return;

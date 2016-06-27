@@ -12,6 +12,12 @@
         app:showAsAction="never"
         android:title="Favorites"/>
     <item
+        android:id="@+id/nearbye"
+        android:icon="@drawable/marker"
+        app:showAsAction="always"
+        android:title="test"
+        />
+    <item
         android:id="@+id/action_search"
         android:orderInCategory="100"
         android:title="search"
