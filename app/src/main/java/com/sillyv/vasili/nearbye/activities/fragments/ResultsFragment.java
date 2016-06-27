@@ -1,11 +1,14 @@
 package com.sillyv.vasili.nearbye.activities.fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -118,9 +121,6 @@ public class ResultsFragment
     }
 
 
-
-
-
     //Override Methods
     @Override
     public void onAttach(Context context)
@@ -157,6 +157,54 @@ public class ResultsFragment
     public boolean onLongClick(View v)
     {
         int itemPosition = mRecyclerView.getChildLayoutPosition(v);
+        String[] options = getResources().getStringArray(R.array.alert_dialog);
+        LocationTableHandler db = new LocationTableHandler(getContext());
+        if (db.isGoogleIDAlreadyInDB(mAdapter.Items().get(itemPosition).getId()))
+        {
+            options[1] = "Remove from Favorites";
+        }
+        displayListDialog(itemPosition,options);
+        return false;
+    }
+
+    //Subs
+
+    private void displayListDialog(final int position, String[] options)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Choose Action").setItems(options, new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                switch (which)
+                {
+                    case 0:
+                        ShareText(position);
+                        break;
+                    case 1:
+                        saveOrRemoveFavorite(position);
+                        break;
+                }
+            }
+        }).show();
+    }
+
+
+
+private void ShareText(int position)
+{
+    String placeName = mAdapter.Items().get(position).getName();
+
+    String shareBody = "I have found the " + placeName + " Location using Nearby! come join the fun." ;
+    Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+    sharingIntent.setType("text/plain");
+    sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+    startActivity(Intent.createChooser(sharingIntent, getResources().getString(R.string.share_using)));
+
+}
+    private void saveOrRemoveFavorite(int itemPosition)
+    {
         LocationTableHandler db = new LocationTableHandler(getContext());
         if (db.isGoogleIDAlreadyInDB(mAdapter.Items().get(itemPosition).getId()))
         {
@@ -169,16 +217,16 @@ public class ResultsFragment
             mAdapter.Items().get(itemPosition).setFavorite(true);
         }
         mAdapter.notifyDataSetChanged();
-        return false;
     }
 
-    //Subs
+
 
     public void updateUnits()
     {
-        mAdapter.updateDistance(myLocation,Prefs.getUnit(getContext()));
+        mAdapter.updateDistance(myLocation, Prefs.getUnit(getContext()));
         mAdapter.notifyDataSetChanged();
     }
+
     public void goToFavorites()
     {
         mCallback.callback(new GooglePlacesHolder(null, null, getFavorites(), null));

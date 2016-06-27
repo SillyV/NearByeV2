@@ -84,4 +84,5 @@
 
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="unit_list_key">unit_preference</string>
+    <string name="share_using">Share Using:</string>
 </resources>
